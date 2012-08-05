@@ -1,12 +1,21 @@
 -#  This file is app/views/movies/index.html.haml
+
 %h1 All Movies
+= form_tag movies_path, :method => :get do
+  Include:
+  - @selected_ratings.each do |rating, rating_checked|
+    = rating
+    = check_box_tag "ratings[#{rating}]", 1, rating_checked #"ratings_#{rating}"
+  = hidden_field_tag :sort, @sort
+  = submit_tag 'Refresh'
 
 %table#movies
   %thead
     %tr
-      %th Movie Title
+      %th{:class => ("hilite" if @sort == "title")}= link_to 'Movie Title', movies_path({:sort => 'title'}.merge(@ratings_for_url)), :id => 'title_header'
       %th Rating
-      %th Release Date
+      %th{:class => ("hilite" if @sort == "release_date")}= link_to 'Release Date', movies_path({:sort => 'release_date'}.merge(@ratings_for_url)), :id => 'release_date_header'
+
       %th More Info
   %tbody
     - @movies.each do |movie|

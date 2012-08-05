@@ -7,7 +7,31 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @sort = params[:sort]
+    @all_ratings = Movie.select(:rating).map(&:rating).uniq
+    if @selected_ratings==nil
+     @selected_ratings = {}
+     @all_ratings.each{|el| @selected_ratings[el]=false}
+    end
+    
+    if params[:ratings]!=nil
+      @rating_filter = params[:ratings].keys
+      for i in 0..(@all_ratings.length-1)
+        @selected_ratings[@all_ratings[i]] = @rating_filter.include? @all_ratings[i]
+      end
+    else
+      @rating_filter = []
+    end
+    @ratings_for_url = {}
+    @rating_filter.each {|el| @ratings_for_url["ratings[#{el}]"]=1}
+    logger.debug(@rating_filter.inspect)
+    logger.debug(@selected_ratings.inspect)
+    #if @rating_filter.length==0
+    #  @movies = Movie.find(:all, :order => params[:sort])
+    #else
+    @movies = Movie.find(:all, :conditions => ["rating in (?)", @rating_filter], :order => params[:sort])
+    #end
+
   end
 
   def new
